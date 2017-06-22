@@ -215,6 +215,16 @@ func (a *Properties) Validate() error {
 		return fmt.Errorf("the service principal client secrect must be specified with Orchestrator %s", a.OrchestratorProfile.OrchestratorType)
 	}
 
+	switch a.MasterProfile.StorageProfile {
+	case StorageAccount:
+	case ManagedDisks:
+	case "":
+	default:
+		{
+			return fmt.Errorf("unknown storage type '%s' for masters.  Specify either %s, or %s", a.MasterProfile.StorageProfile, StorageAccount, ManagedDisks)
+		}
+	}
+
 	for _, agentPoolProfile := range a.AgentPoolProfiles {
 		if e := agentPoolProfile.Validate(a.OrchestratorProfile.OrchestratorType); e != nil {
 			return e

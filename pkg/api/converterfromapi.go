@@ -583,6 +583,7 @@ func convertMasterProfileToVLabs(api *MasterProfile, vlabsProfile *vlabs.MasterP
 	vlabsProfile.Count = api.Count
 	vlabsProfile.DNSPrefix = api.DNSPrefix
 	vlabsProfile.VMSize = api.VMSize
+	vlabsProfile.StorageProfile = api.StorageProfile
 	vlabsProfile.OSDiskSizeGB = api.OSDiskSizeGB
 	vlabsProfile.VnetSubnetID = api.VnetSubnetID
 	vlabsProfile.FirstConsecutiveStaticIP = api.FirstConsecutiveStaticIP

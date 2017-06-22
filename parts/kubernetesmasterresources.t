@@ -1,3 +1,17 @@
+{{if .MasterProfile.IsManagedDisks}}
+    {
+      "apiVersion": "[variables('apiVersionStorageManagedDisks')]",
+      "location": "[variables('location')]",
+      "name": "[variables('masterAvailabilitySet')]",
+      "properties":
+        {
+            "platformFaultDomainCount": "3",
+            "platformUpdateDomainCount": "3",
+		        "managed" : "true"
+        },
+        "type": "Microsoft.Compute/availabilitySets"
+    },
+{{else if .MasterProfile.IsStorageAccount}}
     {
       "apiVersion": "[variables('apiVersionDefault')]",
       "location": "[variables('location')]",
@@ -17,6 +31,7 @@
       },
       "type": "Microsoft.Storage/storageAccounts"
     },
+{{end}}
 {{if not .MasterProfile.IsCustomVNET}}
     {
       "apiVersion": "[variables('apiVersionDefault')]",
@@ -64,20 +79,20 @@
         "securityRules": [
 {{if .HasWindows}}
           {
-            "name": "allow_rdp", 
+            "name": "allow_rdp",
             "properties": {
-              "access": "Allow", 
-              "description": "Allow RDP traffic to master", 
-              "destinationAddressPrefix": "*", 
-              "destinationPortRange": "3389-3389", 
-              "direction": "Inbound", 
-              "priority": 102, 
-              "protocol": "Tcp", 
-              "sourceAddressPrefix": "*", 
+              "access": "Allow",
+              "description": "Allow RDP traffic to master",
+              "destinationAddressPrefix": "*",
+              "destinationPortRange": "3389-3389",
+              "direction": "Inbound",
+              "priority": 102,
+              "protocol": "Tcp",
+              "sourceAddressPrefix": "*",
               "sourcePortRange": "*"
             }
           },
-{{end}}       
+{{end}}
           {
             "name": "allow_ssh",
             "properties": {
@@ -302,7 +317,7 @@
                 {
                   "id": "[concat(variables('masterLbID'), '/backendAddressPools/', variables('masterLbBackendPoolName'))]"
                 }
-{{if gt .MasterProfile.Count 1}}                
+{{if gt .MasterProfile.Count 1}}
                 ,
                 {
                    "id": "[concat(variables('masterInternalLbID'), '/backendAddressPools/', variables('masterLbBackendPoolName'))]"
@@ -351,15 +366,22 @@
       "type": "Microsoft.Network/networkInterfaces"
     },
     {
-      "apiVersion": "[variables('apiVersionDefault')]",
+      {{if .MasterProfile.IsManagedDisks}}
+        "apiVersion": "[variables('apiVersionStorageManagedDisks')]",
+      {{else}}
+        "apiVersion": "[variables('apiVersionDefault')]",
+      {{end}}
       "copy": {
         "count": "[sub(variables('masterCount'), variables('masterOffset'))]",
         "name": "vmLoopNode"
       },
       "dependsOn": [
         "[concat('Microsoft.Network/networkInterfaces/', variables('masterVMNamePrefix'), 'nic-', copyIndex(variables('masterOffset')))]",
-        "[concat('Microsoft.Compute/availabilitySets/',variables('masterAvailabilitySet'))]",
+        "[concat('Microsoft.Compute/availabilitySets/',variables('masterAvailabilitySet'))]"
+        {{if .MasterProfile.IsStorageAccount}}
+        ,
         "[variables('masterStorageAccountName')]"
+        {{end}}
       ],
       "tags":
       {
@@ -408,11 +430,14 @@
             {
               "createOption": "Empty",
               "diskSizeGB": "128",
-              "lun": 0,
+              "lun": 0
+              {{if .MasterProfile.IsStorageAccount}}
+              ,
               "name": "[concat(variables('masterVMNamePrefix'), copyIndex(variables('masterOffset')),'-etcddisk')]",
               "vhd": {
                 "uri": "[concat(reference(concat('Microsoft.Storage/storageAccounts/',variables('masterStorageAccountName')),variables('apiVersionStorage')).primaryEndpoints.blob,'vhds/', variables('masterVMNamePrefix'),copyIndex(variables('masterOffset')),'-etcddisk.vhd')]"
               }
+              {{end}}
             }
           ],
           "imageReference": {
@@ -423,14 +448,17 @@
           },
           "osDisk": {
             "caching": "ReadWrite",
-            "createOption": "FromImage",
-{{if ne .MasterProfile.OSDiskSizeGB 0}}
-            "diskSizeGB": {{.MasterProfile.OSDiskSizeGB}},
-{{end}}
+            "createOption": "FromImage"
+            {{if .MasterProfile.IsStorageAccount}}
+            ,
             "name": "[concat(variables('masterVMNamePrefix'), copyIndex(variables('masterOffset')),'-osdisk')]",
             "vhd": {
               "uri": "[concat(reference(concat('Microsoft.Storage/storageAccounts/',variables('masterStorageAccountName')),variables('apiVersionStorage')).primaryEndpoints.blob,'vhds/',variables('masterVMNamePrefix'),copyIndex(variables('masterOffset')),'-osdisk.vhd')]"
             }
+            {{end}}
+            {{if ne .MasterProfile.OSDiskSizeGB 0}}
+              ,"diskSizeGB": {{.MasterProfile.OSDiskSizeGB}},
+            {{end}}
           }
         }
       },

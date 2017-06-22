@@ -35,6 +35,7 @@
 |firstConsecutiveStaticIP|只有当vnetSubnetId被设置是需要|指定第一个master节点的IP地址。后续的master节点的IP地址会根据这个值向后累加。|
 |vmsize|是|具体的值请参考 [Azure虚机规格](https://azure.microsoft.com/en-us/documentation/articles/virtual-machines-windows-sizes/).  所选的虚机的规格必须最少有2个CPU核心和100GB的磁盘空间。|
 |vnetSubnetId|否|指定一个备用的VNET子网的ID。这个子网必须具有一个正确的VNET ID，并且处于同一个订阅中。([用户自定义VNET的例子](../examples/vnet))|
+|storageProfile|否, 默认值为`StorageAccount`|指定存储配置。可选值为[StorageAccount](../examples/disks-storageaccount)或者[ManagedDisks](../examples/disks-managed)|
 
 ### agentPoolProfiles
 一个集群可以拥有0到12个agent pool配置。agent pool配置用来指定创建各种资源比如虚机，虚机规模集或者高可用集，Public/Private access，[attached storage disks](../examples/disks-storageaccount), [attached managed disks](../examples/disks-managed), 或者 [Windows](../examples/windows).

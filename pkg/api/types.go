@@ -136,6 +136,7 @@ type MasterProfile struct {
 	Count                    int    `json:"count"`
 	DNSPrefix                string `json:"dnsPrefix"`
 	VMSize                   string `json:"vmSize"`
+	StorageProfile           string `json:"storageProfile,omitempty"`
 	OSDiskSizeGB             int    `json:"osDiskSizeGB,omitempty"`
 	VnetSubnetID             string `json:"vnetSubnetID,omitempty"`
 	FirstConsecutiveStaticIP string `json:"firstConsecutiveStaticIP,omitempty"`
@@ -303,6 +304,10 @@ func (p *Properties) HasWindows() bool {
 
 // HasManagedDisks returns true if the cluster contains Managed Disks
 func (p *Properties) HasManagedDisks() bool {
+	if p.MasterProfile.StorageProfile == ManagedDisks {
+		return true
+	}
+
 	for _, agentPoolProfile := range p.AgentPoolProfiles {
 		if agentPoolProfile.StorageProfile == ManagedDisks {
 			return true
@@ -314,6 +319,16 @@ func (p *Properties) HasManagedDisks() bool {
 // IsCustomVNET returns true if the customer brought their own VNET
 func (m *MasterProfile) IsCustomVNET() bool {
 	return len(m.VnetSubnetID) > 0
+}
+
+// IsManagedDisks returns true if the customer specified disks
+func (m *MasterProfile) IsManagedDisks() bool {
+	return m.StorageProfile == ManagedDisks
+}
+
+// IsStorageAccount returns true if the customer specified storage account
+func (m *MasterProfile) IsStorageAccount() bool {
+	return m.StorageProfile == StorageAccount
 }
 
 // IsCustomVNET returns true if the customer brought their own VNET

@@ -1,3 +1,4 @@
+{{if .MasterProfile.IsStorageAccount}}
     {
       "apiVersion": "[variables('apiVersionStorage')]",
       "dependsOn": [
@@ -10,6 +11,7 @@
       },
       "type": "Microsoft.Storage/storageAccounts"
     },
+{{end}}
 {{if not .MasterProfile.IsCustomVNET}}
     {
       "apiVersion": "[variables('apiVersionDefault')]",
@@ -28,6 +30,19 @@
       "type": "Microsoft.Network/virtualNetworks"
     },
 {{end}}
+{{if .MasterProfile.IsManagedDisks}}
+    {
+      "apiVersion": "[variables('apiVersionStorageManagedDisks')]",
+      "location": "[variables('location')]",
+      "name": "[variables('masterAvailabilitySet')]",
+      "properties": {
+        "platformFaultDomainCount": "3",
+        "platformUpdateDomainCount": "3",
+        "managed": "true"
+      },
+      "type": "Microsoft.Compute/availabilitySets"
+    },
+{{else if .MasterProfile.IsStorageAccount}}
     {
       "apiVersion": "[variables('apiVersionDefault')]",
       "location": "[variables('location')]",
@@ -35,6 +50,7 @@
       "properties": {},
       "type": "Microsoft.Compute/availabilitySets"
     },
+{{end}}
     {
       "apiVersion": "[variables('apiVersionDefault')]",
       "location": "[variables('location')]",
@@ -125,7 +141,7 @@
 {{end}}
         "[variables('masterLbID')]",
         "[concat(variables('masterSshPort22InboundNatRuleIdPrefix'),'0')]",
-        "[concat(variables('masterSshInboundNatRuleIdPrefix'),copyIndex())]"        
+        "[concat(variables('masterSshInboundNatRuleIdPrefix'),copyIndex())]"
       ],
       "location": "[variables('location')]",
       "name": "[concat(variables('masterVMNamePrefix'), 'nic-', copyIndex())]",
@@ -159,8 +175,10 @@
       },
       "dependsOn": [
         "[concat('Microsoft.Network/networkInterfaces/', variables('masterVMNamePrefix'), 'nic-', copyIndex())]",
-        "[concat('Microsoft.Compute/availabilitySets/',variables('masterAvailabilitySet'))]",
-        "[variables('masterStorageAccountName')]"
+        "[concat('Microsoft.Compute/availabilitySets/',variables('masterAvailabilitySet'))]"
+        {{if .MasterProfile.IsStorageAccount}}
+        ,"[variables('masterStorageAccountName')]"
+        {{end}}
       ],
       "tags":
       {
@@ -215,14 +233,17 @@
           },
           "osDisk": {
             "caching": "ReadWrite",
-            "createOption": "FromImage",
-{{if ne .MasterProfile.OSDiskSizeGB 0}}
-            "diskSizeGB": {{.MasterProfile.OSDiskSizeGB}},
-{{end}}
+            "createOption": "FromImage"
+{{if .MasterProfile.IsStorageAccount}}
+            ,
             "name": "[concat(variables('masterVMNamePrefix'), copyIndex(),'-osdisk')]",
             "vhd": {
               "uri": "[concat(reference(concat('Microsoft.Storage/storageAccounts/', variables('masterStorageAccountName')), variables('apiVersionStorage')).primaryEndpoints.blob, 'vhds/', variables('masterVMNamePrefix'), copyIndex(), '-osdisk.vhd')]"
             }
+{{end}}
+{{if ne .MasterProfile.OSDiskSizeGB 0}}
+            ,"diskSizeGB": {{.MasterProfile.OSDiskSizeGB}}
+{{end}}
           }
         }
       },

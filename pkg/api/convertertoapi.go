@@ -605,6 +605,7 @@ func convertVLabsMasterProfile(vlabs *vlabs.MasterProfile, api *MasterProfile) {
 	api.Count = vlabs.Count
 	api.DNSPrefix = vlabs.DNSPrefix
 	api.VMSize = vlabs.VMSize
+	api.StorageProfile = vlabs.StorageProfile
 	api.OSDiskSizeGB = vlabs.OSDiskSizeGB
 	api.VnetSubnetID = vlabs.VnetSubnetID
 	api.FirstConsecutiveStaticIP = vlabs.FirstConsecutiveStaticIP
