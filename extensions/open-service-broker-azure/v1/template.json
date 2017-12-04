@@ -1,0 +1,68 @@
+{
+   "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+   "contentVersion": "1.0.0.0",
+   "parameters": {
+		"artifactsLocation": {
+			"type": "string",
+			"minLength": 1,
+			"metadata": {
+				"description": "Artifacts Location - URL"
+			}
+        },
+		"apiVersionCompute": {
+			"type": "string",
+			"minLength": 1,
+			"metadata": {
+				"description": "Compute API Version"
+			}
+		},
+		"targetVMName":{
+			"type": "string",
+			"minLength": 1,
+			"metadata": {
+				"description": "Name of the vm to run the "
+			}
+		},
+		"extensionParameters": {
+			"type": "securestring",
+			"minLength": 0,
+			"metadata": {
+				"description": "Custom Parameter for Extension - CLIENTID, CLIENTSECRET, SUBSCRIPTIONID and TENANTID. Must be JSON formatted and base64 encoded first."
+			}
+		},
+		"vmIndex": {
+			"type": "int",
+			"metadata": {
+				"description": "index in the pool of the current agent, used so that we can get the extension name right"
+			}
+		}
+   },
+   "variables": {
+		"singleQuote": "'",
+		"initScriptUrl": "[concat(parameters('artifactsLocation'), 'extensions/open-service-broker-azure/v1/open-service-broker-azure.sh')]"
+   },
+   "resources": [
+	{
+      "apiVersion": "[parameters('apiVersionCompute')]",
+      "dependsOn": [],
+      "location": "[resourceGroup().location]",
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+	  "name": "[concat(parameters('targetVMName'),'/cse', parameters('vmIndex'))]",
+      "properties": {
+        "publisher": "Microsoft.Azure.Extensions",
+        "type": "CustomScript",
+        "typeHandlerVersion": "2.0",
+        "autoUpgradeMinorVersion": true,
+        "settings": {
+			"fileUris": [
+			   "[variables('initScriptUrl')]"
+			 ]
+		},
+        "protectedSettings": {
+			"commandToExecute": "[concat('/bin/bash -c \"/bin/bash ./open-service-broker-azure.sh ', variables('singleQuote'), parameters('extensionParameters'), variables('singleQuote'), ' >> /var/log/azure/open-service-broker-azure.log 2>&1 &\" &')]"
+        }
+      }
+    }
+	],
+   "outputs": {  }
+}
