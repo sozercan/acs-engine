@@ -192,7 +192,7 @@ install_helm() {
 
     echo $(date) " - helm version"
     helm version
-    helm init
+    helm init --home /root/.helm
 
     echo $(date) " - helm installed"
 }
@@ -297,14 +297,14 @@ ensure_k8s_namespace_exists() {
     fi
 }
 
+install_script_dependencies
+sleep 10
+
 # this extension should only run on a single node
 # the logic to decide whether or not this current node
 # should run the extension is to alphabetically determine
 # if this local machine is the first in the list of master nodes
 # if it is, then run the extension. if not, exit
-install_script_dependencies
-sleep 10
-
 wait_for_master_nodes
 if [[ $? -ne 0 ]]; then
     echo $(date) " - Error while waiting for kubectl to output master nodes. Exiting"
