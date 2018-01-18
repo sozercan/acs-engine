@@ -2,6 +2,57 @@
 
 The `open-service-broker-azure` extension installs Kubernetes Service Catalog and Open Service Broker for Azure.
 
+```
+{
+  "apiVersion": "vlabs",
+  "properties": {
+    "orchestratorProfile": {
+      "orchestratorType": "Kubernetes"
+    },
+    "masterProfile": {
+      "count": 1,
+      "dnsPrefix": "",
+      "vmSize": "Standard_DS2_v2"
+    },
+    "agentPoolProfiles": [
+      {
+        "name": "agentpool1",
+        "count": 3,
+        "vmSize": "Standard_DS2_v2",
+        "availabilityProfile": "AvailabilitySet",
+        "extensions": [
+          {
+            "name": "open-service-broker-azure"
+          }
+        ]
+      }
+    ],
+    "linuxProfile": {
+      "adminUsername": "azureuser",
+      "ssh": {
+        "publicKeys": [
+          {
+            "keyData": ""
+          }
+        ]
+      }
+    },
+    "extensionProfiles": [
+      {
+        "name": "open-service-broker-azure",
+        "version": "v1",
+        "rootURL": "https://raw.githubusercontent.com/sozercan/acs-engine/open-service-broker-azure/",
+        "extensionParameters": ""
+      }
+    ],
+    "servicePrincipalProfile": {
+      "clientId": "",
+      "secret": ""
+    }
+  }
+}
+```
+
 ## Configuration
 
 |Name|Required|Acceptable Value|
