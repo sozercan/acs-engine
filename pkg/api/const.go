@@ -87,6 +87,8 @@ const (
 	DefaultTillerAddonEnabled = true
 	// DefaultACIConnectorAddonEnabled determines the acs-engine provided default for enabling aci connector addon
 	DefaultACIConnectorAddonEnabled = false
+	// DefaultClusterAutoscalerAddonEnabled determines the acs-engine provided default for enabling cluster autoscaler addon
+	DefaultClusterAutoscalerAddonEnabled = false
 	// DefaultDashboardAddonEnabled determines the acs-engine provided default for enabling kubernetes-dashboard addon
 	DefaultDashboardAddonEnabled = true
 	// DefaultReschedulerAddonEnabled determines the acs-engine provided default for enabling kubernetes-rescheduler addon
@@ -103,6 +105,8 @@ const (
 	DefaultTillerAddonName = "tiller"
 	// DefaultACIConnectorAddonName is the name of the tiller addon deployment
 	DefaultACIConnectorAddonName = "aci-connector"
+	// DefaultClusterAutoscalerAddonName is the name of the cluster autoscaler addon deployment
+	DefaultClusterAutoscalerAddonName = "cluster-autoscaler"
 	// DefaultDashboardAddonName is the name of the kubernetes-dashboard addon deployment
 	DefaultDashboardAddonName = "kubernetes-dashboard"
 	// DefaultReschedulerAddonName is the name of the rescheduler addon deployment

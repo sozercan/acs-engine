@@ -30,6 +30,7 @@ var (
 		KubernetesImageBase:              "k8s-gcrio.azureedge.net/",
 		TillerImageBase:                  "gcrio.azureedge.net/kubernetes-helm/",
 		ACIConnectorImageBase:            "microsoft/",
+		ClusterAutoscalerImageBase:       "http://gcrio.azureedge.net/google-containers/cluster-autoscaler/",
 		EtcdDownloadURLBase:              "https://acs-mirror.azureedge.net/github-coreos",
 		KubeBinariesSASURLBase:           "https://acs-mirror.azureedge.net/wink8s/",
 		WindowsPackageSASURLBase:         "https://acs-mirror.azureedge.net/wink8s/",
@@ -216,6 +217,24 @@ var (
 		},
 	}
 
+	// DefaultClusterAutoscalerAddonsConfig is the default cluster autoscaler addon config
+	DefaultClusterAutoscalerAddonsConfig = api.KubernetesAddon{
+		Name:    DefaultClusterAutoscalerAddonName,
+		Enabled: helpers.PointerToBool(api.DefaultClusterAutoscalerAddonEnabled),
+		Config: map[string]string{
+			"foo": "bar",
+		},
+		Containers: []api.KubernetesContainerSpec{
+			{
+				Name:           DefaultClusterAutoscalerAddonName,
+				CPURequests:    "50m",
+				MemoryRequests: "150Mi",
+				CPULimits:      "50m",
+				MemoryLimits:   "150Mi",
+			},
+		},
+	}
+
 	// DefaultDashboardAddonsConfig is the default kubernetes-dashboard addon Config
 	DefaultDashboardAddonsConfig = api.KubernetesAddon{
 		Name:    DefaultDashboardAddonName,
@@ -304,6 +323,7 @@ func setOrchestratorDefaults(cs *api.ContainerService) {
 			o.KubernetesConfig.Addons = []api.KubernetesAddon{
 				DefaultTillerAddonsConfig,
 				DefaultACIConnectorAddonsConfig,
+				DefaultClusterAutoscalerAddonsConfig,
 				DefaultDashboardAddonsConfig,
 				DefaultReschedulerAddonsConfig,
 				DefaultMetricsServerAddonsConfig,
@@ -320,6 +340,11 @@ func setOrchestratorDefaults(cs *api.ContainerService) {
 			if a < 0 {
 				// Provide default acs-engine config for ACI Connector
 				o.KubernetesConfig.Addons = append(o.KubernetesConfig.Addons, DefaultACIConnectorAddonsConfig)
+			}
+			s := getAddonsIndexByName(o.KubernetesConfig.Addons, DefaultClusterAutoscalerAddonName)
+			if s < 0 {
+				// Provide default acs-engine config for cluster autoscaler
+				o.KubernetesConfig.Addons = append(o.KubernetesConfig.Addons, DefaultClusterAutoscalerAddonsConfig)
 			}
 			d := getAddonsIndexByName(o.KubernetesConfig.Addons, DefaultDashboardAddonName)
 			if d < 0 {
@@ -423,6 +448,10 @@ func setOrchestratorDefaults(cs *api.ContainerService) {
 		c := getAddonsIndexByName(a.OrchestratorProfile.KubernetesConfig.Addons, DefaultACIConnectorAddonName)
 		if a.OrchestratorProfile.KubernetesConfig.Addons[c].IsEnabled(api.DefaultACIConnectorAddonEnabled) {
 			a.OrchestratorProfile.KubernetesConfig.Addons[c] = assignDefaultAddonVals(a.OrchestratorProfile.KubernetesConfig.Addons[c], DefaultACIConnectorAddonsConfig)
+		}
+		s := getAddonsIndexByName(a.OrchestratorProfile.KubernetesConfig.Addons, DefaultClusterAutoscalerAddonName)
+		if a.OrchestratorProfile.KubernetesConfig.Addons[s].IsEnabled(api.DefaultClusterAutoscalerAddonEnabled) {
+			a.OrchestratorProfile.KubernetesConfig.Addons[s] = assignDefaultAddonVals(a.OrchestratorProfile.KubernetesConfig.Addons[s], DefaultClusterAutoscalerAddonsConfig)
 		}
 		d := getAddonsIndexByName(a.OrchestratorProfile.KubernetesConfig.Addons, DefaultDashboardAddonName)
 		if a.OrchestratorProfile.KubernetesConfig.Addons[d].IsEnabled(api.DefaultDashboardAddonEnabled) {
