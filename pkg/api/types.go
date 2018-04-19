@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	neturl "net/url"
 
 	"github.com/Azure/acs-engine/pkg/api/agentPoolOnlyApi/v20170831"
@@ -404,32 +405,41 @@ type Extension struct {
 
 // AgentPoolProfile represents an agent pool definition
 type AgentPoolProfile struct {
-	Name                string               `json:"name"`
-	Count               int                  `json:"count"`
-	VMSize              string               `json:"vmSize"`
-	OSDiskSizeGB        int                  `json:"osDiskSizeGB,omitempty"`
-	DNSPrefix           string               `json:"dnsPrefix,omitempty"`
-	OSType              OSType               `json:"osType,omitempty"`
-	Ports               []int                `json:"ports,omitempty"`
-	AvailabilityProfile string               `json:"availabilityProfile"`
-	StorageProfile      string               `json:"storageProfile,omitempty"`
-	DiskSizesGB         []int                `json:"diskSizesGB,omitempty"`
-	VnetSubnetID        string               `json:"vnetSubnetID,omitempty"`
-	Subnet              string               `json:"subnet"`
-	IPAddressCount      int                  `json:"ipAddressCount,omitempty"`
-	Distro              Distro               `json:"distro,omitempty"`
-	Role                AgentPoolProfileRole `json:"role,omitempty"`
-
-	FQDN                  string            `json:"fqdn,omitempty"`
-	CustomNodeLabels      map[string]string `json:"customNodeLabels,omitempty"`
-	PreprovisionExtension *Extension        `json:"preProvisionExtension"`
-	Extensions            []Extension       `json:"extensions"`
-	KubernetesConfig      *KubernetesConfig `json:"kubernetesConfig,omitempty"`
-	ImageRef              *ImageReference   `json:"imageReference,omitempty"`
+	Name                  string                 `json:"name"`
+	Count                 int                    `json:"count"`
+	VMSize                string                 `json:"vmSize"`
+	OSDiskSizeGB          int                    `json:"osDiskSizeGB,omitempty"`
+	DNSPrefix             string                 `json:"dnsPrefix,omitempty"`
+	OSType                OSType                 `json:"osType,omitempty"`
+	Ports                 []int                  `json:"ports,omitempty"`
+	AvailabilityProfile   string                 `json:"availabilityProfile"`
+	StorageProfile        string                 `json:"storageProfile,omitempty"`
+	DiskSizesGB           []int                  `json:"diskSizesGB,omitempty"`
+	VnetSubnetID          string                 `json:"vnetSubnetID,omitempty"`
+	Subnet                string                 `json:"subnet"`
+	IPAddressCount        int                    `json:"ipAddressCount,omitempty"`
+	Distro                Distro                 `json:"distro,omitempty"`
+	Role                  AgentPoolProfileRole   `json:"role,omitempty"`
+	FQDN                  string                 `json:"fqdn,omitempty"`
+	CustomNodeLabels      map[string]string      `json:"customNodeLabels,omitempty"`
+	PreprovisionExtension *Extension             `json:"preProvisionExtension"`
+	Extensions            []Extension            `json:"extensions"`
+	KubernetesConfig      *KubernetesConfig      `json:"kubernetesConfig,omitempty"`
+	ImageRef              *ImageReference        `json:"imageReference,omitempty"`
+	VirtualMachineProfile *VirtualMachineProfile `json:"virtualMachineProfile,omitempty"`
 }
 
 // AgentPoolProfileRole represents an agent role
 type AgentPoolProfileRole string
+
+// VirtualMachineProfile represents properties of a virtual machine or a virtual machine scale set
+type VirtualMachineProfile struct {
+	Overprovision        *bool     `json:"overprovision,omitempty"`
+	SinglePlacementGroup *bool     `json:"singlePlacementGroup,omitempty"`
+	AvailabilityZones    *[]string `json:"availabilityZones,omitempty"`
+	Priority             *string   `json:"priority,omitempty"`
+	EvictionPolicy       *string   `json:"evictionPolicy,omitempty"`
+}
 
 // DiagnosticsProfile setting to enable/disable capturing
 // diagnostics for VMs hosting container cluster.
@@ -723,6 +733,24 @@ func (a *AgentPoolProfile) IsStorageAccount() bool {
 // HasDisks returns true if the customer specified disks
 func (a *AgentPoolProfile) HasDisks() bool {
 	return len(a.DiskSizesGB) > 0
+}
+
+// UseOverprovision returns true if the customer specified overprovision
+func (a *AgentPoolProfile) UseOverprovision() bool {
+	fmt.Println(*a.VirtualMachineProfile.Overprovision)
+	return *a.VirtualMachineProfile.Overprovision
+}
+
+// UseMultiplePlacementGroups returns true if the customer specified multiple placement groups
+func (a *AgentPoolProfile) UseMultiplePlacementGroups() bool {
+	fmt.Println(*a.VirtualMachineProfile.SinglePlacementGroup)
+	return !*a.VirtualMachineProfile.SinglePlacementGroup
+}
+
+// GetAvailabilityZones returns true if the customer specified availability zones
+func (a *AgentPoolProfile) GetAvailabilityZones() []string {
+	fmt.Println(*a.VirtualMachineProfile.AvailabilityZones)
+	return *a.VirtualMachineProfile.AvailabilityZones
 }
 
 // HasSecrets returns true if the customer specified secrets to install

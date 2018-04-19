@@ -419,14 +419,24 @@ type AgentPoolProfile struct {
 	// subnet is internal
 	subnet string
 
-	FQDN                  string            `json:"fqdn"`
-	CustomNodeLabels      map[string]string `json:"customNodeLabels,omitempty"`
-	PreProvisionExtension *Extension        `json:"preProvisionExtension"`
-	Extensions            []Extension       `json:"extensions"`
+	FQDN                  string                 `json:"fqdn"`
+	CustomNodeLabels      map[string]string      `json:"customNodeLabels,omitempty"`
+	PreProvisionExtension *Extension             `json:"preProvisionExtension"`
+	Extensions            []Extension            `json:"extensions"`
+	VirtualMachineProfile *VirtualMachineProfile `json:"virtualMachineProfile,omitempty"`
 }
 
 // AgentPoolProfileRole represents an agent role
 type AgentPoolProfileRole string
+
+// VirtualMachineProfile represents properties of a virtual machine or a virtual machine scale set
+type VirtualMachineProfile struct {
+	Overprovision        *bool     `json:"overprovision,omitempty"`
+	SinglePlacementGroup *bool     `json:"singlePlacementGroup,omitempty"`
+	AvailabilityZones    *[]string `json:"availabilityZones,omitempty"`
+	Priority             *string   `json:"priority,omitempty"`
+	EvictionPolicy       *string   `json:"evictionPolicy,omitempty"`
+}
 
 // AADProfile specifies attributes for AAD integration
 type AADProfile struct {
@@ -567,6 +577,22 @@ func (a *AgentPoolProfile) IsStorageAccount() bool {
 func (a *AgentPoolProfile) HasDisks() bool {
 	return len(a.DiskSizesGB) > 0
 }
+
+// // UseOverprovision returns true if the customer specified overprovision
+// func (a *AgentPoolProfile) UseOverprovision() bool {
+// 	return a.VirtualMachineProfile.Overprovision
+// }
+
+// // UseMultiplePlacementGroup returns true if the customer specified multiple placement groups
+// func (a *AgentPoolProfile) UseMultiplePlacementGroup() bool {
+// 	return !a.VirtualMachineProfile.SinglePlacementGroup
+// }
+
+// // GetAvailabilityZones returns true if the customer specified availability zones
+// func (a *AgentPoolProfile) GetAvailabilityZones() []string {
+// 	fmt.Println(a.VirtualMachineProfile.AvailabilityZones)
+// 	return a.VirtualMachineProfile.AvailabilityZones
+// }
 
 // GetSubnet returns the read-only subnet for the agent pool
 func (a *AgentPoolProfile) GetSubnet() string {

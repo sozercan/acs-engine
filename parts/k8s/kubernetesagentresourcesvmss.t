@@ -26,6 +26,9 @@
       "poolName" : "{{.Name}}"
     },
     "location": "[variables('location')]",
+    {{ if .GetAvailabilityZones}}
+    "zones": "{{.GetAvailabilityZones}}",
+    {{ end }}
     "name": "[variables('{{.Name}}VMNamePrefix')]",
     {{if UseManagedIdentity}}
     "identity": {
@@ -38,11 +41,20 @@
       "name": "[variables('{{.Name}}VMSize')]"
     },
     "properties": {
+      {{if .UseMultiplePlacementGroups}}
+      "singlePlacementGroup": false,
+      {{end}}
+      {{if .UseOverprovision}}
+      "overprovision": true,
+      {{else}}
       "overprovision": false,
+      {{end}}
       "upgradePolicy": {
         "mode": "Manual"
       },
       "virtualMachineProfile": {
+        "priority": "Low",
+        "evictionPolicy": "delete",
         "networkProfile": {
           "networkInterfaceConfigurations": [
             {

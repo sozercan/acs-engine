@@ -695,6 +695,14 @@ func convertVLabsKubernetesConfig(vlabs *vlabs.KubernetesConfig, api *Kubernetes
 	convertPrivateClusterToAPI(vlabs, api)
 }
 
+func convertVLabsVirtualMachineProfile(vlabs *vlabs.VirtualMachineProfile, api *VirtualMachineProfile) {
+	api.Overprovision = vlabs.Overprovision
+	api.AvailabilityZones = vlabs.AvailabilityZones
+	api.SinglePlacementGroup = vlabs.SinglePlacementGroup
+	api.Priority = vlabs.Priority
+	api.EvictionPolicy = vlabs.Priority
+}
+
 func setVlabsKubernetesDefaults(vp *vlabs.Properties, api *OrchestratorProfile) {
 	if api.KubernetesConfig == nil {
 		api.KubernetesConfig = &KubernetesConfig{}
@@ -992,6 +1000,10 @@ func convertVLabsAgentPoolProfile(vlabs *vlabs.AgentPoolProfile, api *AgentPoolP
 	if vlabs.KubernetesConfig != nil {
 		api.KubernetesConfig = &KubernetesConfig{}
 		convertVLabsKubernetesConfig(vlabs.KubernetesConfig, api.KubernetesConfig)
+	}
+	if vlabs.VirtualMachineProfile != nil {
+		api.VirtualMachineProfile = &VirtualMachineProfile{}
+		convertVLabsVirtualMachineProfile(vlabs.VirtualMachineProfile, api.VirtualMachineProfile)
 	}
 	if vlabs.ImageRef != nil {
 		api.ImageRef = &ImageReference{}

@@ -738,6 +738,14 @@ func convertKubernetesConfigToVLabs(api *KubernetesConfig, vlabs *vlabs.Kubernet
 	convertPrivateClusterToVlabs(api, vlabs)
 }
 
+func convertVirtualMachineProfileToVLabs(api *VirtualMachineProfile, vlabs *vlabs.VirtualMachineProfile) {
+	vlabs.Overprovision = api.Overprovision
+	vlabs.AvailabilityZones = api.AvailabilityZones
+	vlabs.SinglePlacementGroup = api.SinglePlacementGroup
+	vlabs.Priority = api.Priority
+	vlabs.EvictionPolicy = api.EvictionPolicy
+}
+
 func convertKubeletConfigToVlabs(a *KubernetesConfig, v *vlabs.KubernetesConfig) {
 	v.KubeletConfig = map[string]string{}
 	for key, val := range a.KubeletConfig {
@@ -981,6 +989,10 @@ func convertAgentPoolProfileToVLabs(api *AgentPoolProfile, p *vlabs.AgentPoolPro
 	if api.KubernetesConfig != nil {
 		p.KubernetesConfig = &vlabs.KubernetesConfig{}
 		convertKubernetesConfigToVLabs(api.KubernetesConfig, p.KubernetesConfig)
+	}
+	if api.VirtualMachineProfile != nil {
+		p.VirtualMachineProfile = &vlabs.VirtualMachineProfile{}
+		convertVirtualMachineProfileToVLabs(api.VirtualMachineProfile, p.VirtualMachineProfile)
 	}
 	if api.ImageRef != nil {
 		p.ImageRef = &vlabs.ImageReference{}
