@@ -2165,7 +2165,8 @@ func getGPUDriversInstallScript(profile *api.AgentPoolProfile) string {
 - echo "%s" > /etc/ld.so.conf.d/nvidia.conf
 - ldconfig
 - umount /usr/lib/x86_64-linux-gnu
-- nvidia-modprobe -u -c0
+- systemctl enable nvidia
+- systemctl start nvidia
 - %s/bin/nvidia-smi`, dv, dest, dest, fmt.Sprintf("%s/lib64", dest), dest)
 
 	/* If a new GPU sku becomes available, add a key to this map, but only provide an installation script if you have a confirmation

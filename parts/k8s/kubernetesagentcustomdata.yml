@@ -37,6 +37,29 @@ write_files:
       }
     }
 
+{{if IsNSeriesSKU .}}
+{{if not IsNVIDIADevicePluginEnabled}}
+- path: "/etc/systemd/system/nvidia.service"
+  permissions: "0644"
+  owner: "root"
+  content: |
+    [Unit]
+    Description=NVIDIA Modprobe service
+    After=docker.service
+    Before=kubelet.service
+    ConditionPathExists=/usr/bin/nvidia-modprobe
+
+    [Service]
+    TimeoutStartSec=0
+    Restart=on-failure
+    RestartSec=5s
+    ExecStart=/usr/bin/nvidia-modprobe -u -c0
+
+    [Install]
+    WantedBy=multi-user.target
+{{end}}
+{{end}}
+
 - path: "/etc/kubernetes/certs/ca.crt"
   permissions: "0644"
   encoding: "base64"
