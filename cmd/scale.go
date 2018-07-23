@@ -38,6 +38,8 @@ type scaleCmd struct {
 	location             string
 	agentPoolToScale     string
 	classicMode          bool
+	masterOnly           bool
+	agentOnly            bool
 	masterFQDN           string
 
 	// derived
@@ -339,7 +341,7 @@ func (sc *scaleCmd) run(cmd *cobra.Command, args []string) error {
 			Locale: sc.locale,
 		},
 	}
-	templateGenerator, err := acsengine.InitializeTemplateGenerator(ctx, sc.classicMode)
+	templateGenerator, err := acsengine.InitializeTemplateGenerator(ctx, sc.classicMode, sc.masterOnly, sc.agentOnly)
 	if err != nil {
 		return errors.Wrap(err, "failed to initialize template generator")
 	}

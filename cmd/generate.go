@@ -30,6 +30,8 @@ type generateCmd struct {
 	classicMode       bool
 	noPrettyPrint     bool
 	parametersOnly    bool
+	masterOnly        bool
+	agentOnly         bool
 	set               []string
 
 	// derived
@@ -71,6 +73,8 @@ func newGenerateCmd() *cobra.Command {
 	f.BoolVar(&gc.classicMode, "classic-mode", false, "enable classic parameters and outputs")
 	f.BoolVar(&gc.noPrettyPrint, "no-pretty-print", false, "skip pretty printing the output")
 	f.BoolVar(&gc.parametersOnly, "parameters-only", false, "only output parameters files")
+	f.BoolVar(&gc.masterOnly, "master-only", false, "only output master")
+	f.BoolVar(&gc.agentOnly, "agent-only", false, "only output agent")
 
 	return generateCmd
 }
@@ -177,7 +181,7 @@ func (gc *generateCmd) run() error {
 			Locale: gc.locale,
 		},
 	}
-	templateGenerator, err := acsengine.InitializeTemplateGenerator(ctx, gc.classicMode)
+	templateGenerator, err := acsengine.InitializeTemplateGenerator(ctx, gc.classicMode, gc.masterOnly, gc.agentOnly)
 	if err != nil {
 		log.Fatalf("failed to initialize template generator: %s", err.Error())
 	}

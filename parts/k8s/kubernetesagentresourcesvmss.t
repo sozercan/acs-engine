@@ -1,4 +1,5 @@
-{{if UseManagedIdentity}}
+{{if not IsMasterOnly}}
+  {{if UseManagedIdentity}}
   {
     "apiVersion": "2014-10-01-preview",
     "name": "[guid(concat('Microsoft.Compute/virtualMachineScaleSets/', variables('{{.Name}}VMNamePrefix'), 'vmidentity'))]",
@@ -8,7 +9,7 @@
       "principalId": "[reference(concat('Microsoft.Compute/virtualMachineScaleSets/', variables('{{.Name}}VMNamePrefix')), '2017-03-30', 'Full').identity.principalId]"
     }
   },
-{{end}}
+  {{end}}
   {
     "apiVersion": "[variables('apiVersionVirtualMachineScaleSets')]",
     "dependsOn": [
@@ -75,13 +76,13 @@
                   {{if lt $seq $.IPAddressCount}},{{end}}
                   {{end}}
                 ]
-{{if HasCustomNodesDNS}}
+                {{if HasCustomNodesDNS}}
                  ,"dnsSettings": {
                     "dnsServers": [
                         "[variables('dnsServer')]"
                     ]
                 }
-{{end}}
+                {{end}}
                 {{if not IsAzureCNI}}
                 ,"enableIPForwarding": true
                 {{end}}
@@ -180,3 +181,4 @@
     },
     "type": "Microsoft.Compute/virtualMachineScaleSets"
   }
+{{end}}

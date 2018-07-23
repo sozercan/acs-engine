@@ -1,3 +1,4 @@
+{{if not IsMasterOnly}}
     {
 {{if .AcceleratedNetworkingEnabled}}
       "apiVersion": "[variables('apiVersionAcceleratedNetworking')]",
@@ -348,4 +349,4 @@
       }
     }
     {{end}}
-    
+{{end}}

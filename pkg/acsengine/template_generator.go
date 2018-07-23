@@ -21,13 +21,17 @@ import (
 // TemplateGenerator represents the object that performs the template generation.
 type TemplateGenerator struct {
 	ClassicMode bool
+	MasterOnly  bool
+	AgentOnly   bool
 	Translator  *i18n.Translator
 }
 
 // InitializeTemplateGenerator creates a new template generator object
-func InitializeTemplateGenerator(ctx Context, classicMode bool) (*TemplateGenerator, error) {
+func InitializeTemplateGenerator(ctx Context, classicMode bool, masterOnly bool, agentOnly bool) (*TemplateGenerator, error) {
 	t := &TemplateGenerator{
 		ClassicMode: classicMode,
+		MasterOnly:  masterOnly,
+		AgentOnly:   agentOnly,
 		Translator:  ctx.Translator,
 	}
 
@@ -163,6 +167,14 @@ func (t *TemplateGenerator) getTemplateFuncMap(cs *api.ContainerService) templat
 	return template.FuncMap{
 		"IsHostedMaster": func() bool {
 			return cs.Properties.HostedMasterProfile != nil
+		},
+		"IsMasterOnly": func() bool {
+			fmt.Printf("t.MasterOnly %v", t.MasterOnly)
+			return t.MasterOnly
+		},
+		"IsAgentOnly": func() bool {
+			fmt.Printf("t.AgentOnly %v", t.MasterOnly)
+			return t.AgentOnly
 		},
 		"IsDCOS19": func() bool {
 			return cs.Properties.OrchestratorProfile.OrchestratorType == api.DCOS &&
