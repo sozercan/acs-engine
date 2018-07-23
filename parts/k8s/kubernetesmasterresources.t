@@ -74,6 +74,28 @@
           }
         ]
       },
+      {{if IsMasterOnly}}
+      "resources": [
+        {
+          "apiVersion": "2016-06-01",
+          "type": "virtualNetworkPeerings",
+          "name": "vnetpeering",
+          "location": "[variables('location')]",
+          "dependsOn": [
+            "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]"
+          ],
+          "properties": {
+            "allowVirtualNetworkAccess": "true",
+            "allowForwardedTraffic": "true",
+            "allowGatewayTransit": "false",
+            "useRemoteGateways": "false",
+            "remoteVirtualNetwork": {
+              "id": "[resourceId(concat(variables('masterFqdnPrefix'),'-agents', 'Microsoft.Network/virtualNetworks', concat(variables('virtualNetworkName'),'-agentvnet'))"
+            }
+          }
+        }
+      ],
+      {{end}}
       "type": "Microsoft.Network/virtualNetworks"
     },
 {{end}}
@@ -637,7 +659,7 @@
        "apiVersion": "[variables('apiVersionKeyVault')]",
        "location": "[variables('location')]",
        {{ if UseManagedIdentity}}
-       "dependsOn": 
+       "dependsOn":
        [
           {{$max := .MasterProfile.Count}}
           {{$c := subtract $max 1}}
@@ -670,7 +692,7 @@
            }
          ],
  {{else}}
-         "accessPolicies": 
+         "accessPolicies":
          [
           {{$max := .MasterProfile.Count}}
           {{$c := subtract $max 1}}

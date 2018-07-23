@@ -81,8 +81,8 @@
         {{end}}
       {{end}}
     {{end}}
-    {{if not IsHostedMaster}}
-      {{template "k8s/kubernetesmasterresources.t" .}},
+    {{if (not IsHostedMaster) or (not IsAgentOnly)}}
+      {{template "k8s/kubernetesmasterresources.t" .}}
     {{else}}
       {{if not IsCustomVNET}}
       {

@@ -1,5 +1,4 @@
-{{if not IsMasterOnly}}
-  {{if UseManagedIdentity}}
+{{if UseManagedIdentity}}
   {
     "apiVersion": "2014-10-01-preview",
     "name": "[guid(concat('Microsoft.Compute/virtualMachineScaleSets/', variables('{{.Name}}VMNamePrefix'), 'vmidentity'))]",
@@ -9,7 +8,7 @@
       "principalId": "[reference(concat('Microsoft.Compute/virtualMachineScaleSets/', variables('{{.Name}}VMNamePrefix')), '2017-03-30', 'Full').identity.principalId]"
     }
   },
-  {{end}}
+{{end}}
   {
     "apiVersion": "[variables('apiVersionVirtualMachineScaleSets')]",
     "dependsOn": [
@@ -76,13 +75,13 @@
                   {{if lt $seq $.IPAddressCount}},{{end}}
                   {{end}}
                 ]
-                {{if HasCustomNodesDNS}}
+{{if HasCustomNodesDNS}}
                  ,"dnsSettings": {
                     "dnsServers": [
                         "[variables('dnsServer')]"
                     ]
                 }
-                {{end}}
+{{end}}
                 {{if not IsAzureCNI}}
                 ,"enableIPForwarding": true
                 {{end}}
@@ -181,4 +180,52 @@
     },
     "type": "Microsoft.Compute/virtualMachineScaleSets"
   }
+{{if IsAgentOnly}}
+  ,{
+      "apiVersion": "[variables('apiVersionDefault')]",
+      "dependsOn": [
+        "[concat('Microsoft.Network/networkSecurityGroups/', variables('nsgName'))]"
+      ],
+      "location": "[variables('location')]",
+      "name": "[variables('virtualNetworkName')]",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "[variables('vnetCidr')]"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "[variables('subnetName')]",
+            "properties": {
+              "addressPrefix": "[variables('subnet')]",
+              "networkSecurityGroup": {
+                "id": "[variables('nsgID')]"
+              }
+            }
+          }
+        ]
+      },
+      "resources": [
+        {
+          "apiVersion": "2016-06-01",
+          "type": "virtualNetworkPeerings",
+          "name": "vnetpeering",
+          "location": "[variables('location')]",
+          "dependsOn": [
+            "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]"
+          ],
+          "properties": {
+            "allowVirtualNetworkAccess": "true",
+            "allowForwardedTraffic": "true",
+            "allowGatewayTransit": "false",
+            "useRemoteGateways": "false",
+            "remoteVirtualNetwork": {
+              "id": "[resourceId(concat(variables('masterFqdnPrefix'),'-agents', 'Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))"
+            }
+          }
+        }
+      ],
+      "type": "Microsoft.Network/virtualNetworks"
+    }
 {{end}}

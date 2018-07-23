@@ -169,11 +169,11 @@ func (t *TemplateGenerator) getTemplateFuncMap(cs *api.ContainerService) templat
 			return cs.Properties.HostedMasterProfile != nil
 		},
 		"IsMasterOnly": func() bool {
-			fmt.Printf("t.MasterOnly %v", t.MasterOnly)
+			fmt.Printf("MasterOnly: %v", t.MasterOnly)
 			return t.MasterOnly
 		},
 		"IsAgentOnly": func() bool {
-			fmt.Printf("t.AgentOnly %v", t.MasterOnly)
+			fmt.Printf("AgentOnly: %v", t.AgentOnly)
 			return t.AgentOnly
 		},
 		"IsDCOS19": func() bool {
